@@ -1,0 +1,16 @@
+# .gitignore
+
+# 1. Bỏ qua thư mục môi trường ảo (Rất nặng, không commit cái này)
+venv/
+env/
+
+# 2. Bỏ qua các file biên dịch của Python (Rác)
+__pycache__/
+*.pyc
+
+# 3. Bỏ qua Database (Thường không commit DB lên Git)
+# Tuy nhiên: Nếu bạn muốn nộp bài kèm dữ liệu cho thầy thì XÓA dòng dưới đi
+db.sqlite3
+
+# 4. Các file hệ thống
+.DS_Store
