@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ listing.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <a href="/" class="btn btn-light mb-3">← Quay lại trang chủ</a>
+
+    <div class="row">
+        <div class="col-md-8">
+            <img src="{{ listing.photo.url }}" class="img-fluid rounded shadow" alt="{{ listing.title }}">
+            
+            <div class="mt-4">
+                <h3>Mô tả chi tiết</h3>
+                <p>{{ listing.description|linebreaks }}</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{{ listing.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-danger fw-bold">{{ listing.price }} VNĐ</h3>
+                    <hr>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong><i class="fas fa-home"></i> Loại nhà:</strong> {{ listing.category }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong><i class="fas fa-tag"></i> Hình thức:</strong> {{ listing.get_listing_type_display }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong><i class="fas fa-ruler-combined"></i> Diện tích:</strong> {{ listing.area }} m²
+                        </li>
+                        <li class="list-group-item">
+                            <strong><i class="fas fa-map-marker-alt"></i> Địa chỉ:</strong> {{ listing.address }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong><i class="fas fa-calendar"></i> Ngày đăng:</strong> {{ listing.created_at|date:"d/m/Y" }}
+                        </li>
+                    </ul>
+                    
+                    <button class="btn btn-success w-100 mt-3">
+                        <i class="fas fa-phone"></i> Liên hệ ngay
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

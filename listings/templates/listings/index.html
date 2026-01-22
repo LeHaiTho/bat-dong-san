@@ -1,0 +1,55 @@
+{% extends 'base.html' %} 
+
+{% block title %}Trang chủ - Mua Bán Nhà{% endblock %}
+
+{% block content %}
+
+<section class="bg-primary text-white text-center py-5 mb-4" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://source.unsplash.com/1600x900/?house'); background-size: cover;">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Tìm Ngôi Nhà Mơ Ước</h1>
+        <p class="lead">Hàng nghìn tin đăng bán và cho thuê mới nhất</p>
+    </div>
+</section>
+
+<div class="container">
+    <h3 class="mb-3 text-primary border-bottom pb-2">🔥 Tin Mới Nhất</h3>
+
+    <div class="row">
+        {% for listing in listings %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm hover-effect">
+                
+                {% if listing.photo %}
+                <img src="{{ listing.photo.url }}" class="card-img-top" alt="{{ listing.title }}" style="height: 220px; object-fit: cover;">
+                {% else %}
+                <img src="https://via.placeholder.com/300" class="card-img-top" style="height: 220px;">
+                {% endif %}
+
+                <div class="position-absolute top-0 start-0 bg-danger text-white px-2 py-1 m-2 rounded">
+                    {{ listing.get_listing_type_display }}
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title text-truncate">
+                        <a href="{% url 'listing' listing.id %}" class="text-decoration-none text-dark">{{ listing.title }}</a>
+                    </h5>
+                    <p class="card-text text-danger fw-bold fs-5">{{ listing.price}} VNĐ</p>
+                    
+                    <ul class="list-unstyled d-flex justify-content-between text-muted small">
+                        <li><i class="fas fa-map-marker-alt"></i> {{ listing.address|truncatechars:20 }}</li>
+                        <li><i class="fas fa-ruler-combined"></i> {{ listing.area }}m²</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-white border-top-0 d-grid">
+                      <a href="{% url 'listing' listing.id %}" class="btn btn-outline-primary btn-sm">Xem Chi Tiết</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <div class="col-12 text-center">
+                <p>Chưa có tin đăng nào.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
