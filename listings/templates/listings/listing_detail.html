@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ listing.title }} - MuaBanNha{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'listing_search' %}?listing_type={{ listing.listing_type }}">
+                    {{ listing.get_listing_type_display }}
+                </a>
+            </li>
+            <li class="breadcrumb-item active">{{ listing.title|truncatechars:30 }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Status Badge (nếu chưa duyệt) -->
+            {% if listing.status != 'approved' %}
+            <div class="alert alert-{% if listing.status == 'pending' %}warning{% else %}danger{% endif %} mb-3">
+                <i class="fas fa-{% if listing.status == 'pending' %}clock{% else %}times{% endif %} me-2"></i>
+                {% if listing.status == 'pending' %}
+                Tin đăng này đang chờ duyệt và chưa hiển thị công khai.
+                {% else %}
+                Tin đăng này đã bị từ chối.
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Image -->
+            <div class="card mb-4 shadow-sm">
+                {% if listing.photo %}
+                <img src="{{ listing.photo.url }}" class="card-img-top" alt="{{ listing.title }}"
+                     style="max-height: 450px; object-fit: cover;">
+                {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                    <i class="fas fa-image fa-5x text-muted"></i>
+                </div>
+                {% endif %}
+                
+                <div class="position-absolute top-0 start-0 m-3">
+                    <span class="badge bg-{% if listing.listing_type == 'sale' %}danger{% else %}info{% endif %} fs-6">
+                        {{ listing.get_listing_type_display }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Title & Price -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-3">{{ listing.title }}</h2>
+                    <h3 class="text-danger mb-3">{{ listing.get_price_display }}</h3>
+                    
+                    <div class="d-flex flex-wrap gap-3 text-muted mb-3">
+                        <span><i class="fas fa-map-marker-alt text-primary me-1"></i>{{ listing.address }}</span>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap gap-4">
+                        <div class="text-center">
+                            <i class="fas fa-ruler-combined fa-2x text-primary mb-1"></i>
+                            <p class="mb-0 small text-muted">Diện tích</p>
+                            <strong>{{ listing.area }} m²</strong>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-bed fa-2x text-primary mb-1"></i>
+                            <p class="mb-0 small text-muted">Phòng ngủ</p>
+                            <strong>{{ listing.bedrooms }}</strong>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-bath fa-2x text-primary mb-1"></i>
+                            <p class="mb-0 small text-muted">Phòng tắm</p>
+                            <strong>{{ listing.bathrooms }}</strong>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-home fa-2x text-primary mb-1"></i>
+                            <p class="mb-0 small text-muted">Loại nhà</p>
+                            <strong>{{ listing.category.name }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-align-left text-primary me-2"></i>Mô tả chi tiết</h5>
+                </div>
+                <div class="card-body">
+                    {% if listing.description %}
+                    <p style="white-space: pre-line;">{{ listing.description }}</p>
+                    {% else %}
+                    <p class="text-muted">Chưa có mô tả chi tiết.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Contact Card -->
+            <div class="card shadow-sm mb-4 sticky-top content-sticky" style="top: 80px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Thông tin liên hệ</h5>
+                </div>
+                <div class="card-body">
+                    {% if listing.owner %}
+                    <div class="d-flex align-items-center mb-3">
+                        {% if listing.owner.profile.avatar %}
+                        <img src="{{ listing.owner.profile.avatar.url }}" class="rounded-circle me-3"
+                             style="width: 60px; height: 60px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-3"
+                             style="width: 60px; height: 60px;">
+                            <span class="text-white fs-4">{{ listing.owner.username.0|upper }}</span>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h6 class="mb-0">{{ listing.owner.get_full_name|default:listing.owner.username }}</h6>
+                            <small class="text-muted">Người đăng tin</small>
+                        </div>
+                    </div>
+                    
+                    {% if listing.owner.profile.phone %}
+                    <a href="tel:{{ listing.owner.profile.phone }}" class="btn btn-success w-100 mb-2">
+                        <i class="fas fa-phone me-2"></i>{{ listing.owner.profile.phone }}
+                    </a>
+                    {% endif %}
+                    {% else %}
+                    <p class="text-muted">Thông tin liên hệ không khả dụng.</p>
+                    {% endif %}
+                    
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'appointment_create' listing.id %}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-calendar-alt me-2"></i>Đặt lịch xem nhà
+                    </a>
+                    {% else %}
+                    <a href="{% url 'login' %}?next={% url 'listing_detail' listing.id %}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-calendar-alt me-2"></i>Đăng nhập để đặt lịch
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>Đăng ngày: {{ listing.created_at|date:"d/m/Y" }}
+                    </small>
+                </div>
+            </div>
+
+            <!-- Owner Actions -->
+            {% if user == listing.owner or user.is_staff %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning">
+                    <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Quản lý tin đăng</h6>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'listing_update' listing.id %}" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-edit me-1"></i>Chỉnh sửa
+                    </a>
+                    <a href="{% url 'listing_delete' listing.id %}" class="btn btn-outline-danger w-100">
+                        <i class="fas fa-trash me-1"></i>Xóa tin
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Related Listings -->
+    {% if related_listings %}
+    <hr class="my-5">
+    <h4 class="mb-4"><i class="fas fa-th-large text-primary me-2"></i>Tin đăng liên quan</h4>
+    <div class="row">
+        {% for item in related_listings %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if item.photo %}
+                <img src="{{ item.photo.url }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title text-truncate">
+                        <a href="{% url 'listing_detail' item.id %}" class="text-decoration-none">{{ item.title }}</a>
+                    </h6>
+                    <p class="text-danger fw-bold mb-1">{{ item.get_price_display }}</p>
+                    <small class="text-muted">{{ item.area }}m² • {{ item.address|truncatechars:20 }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

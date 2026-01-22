@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block title %}Thống kê báo cáo - MuaBanNha{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="mb-4">
+        <i class="fas fa-chart-bar text-primary me-2"></i>Thống kê & Báo cáo
+    </h3>
+
+    <!-- Tổng quan -->
+    <div class="row mb-4">
+        <div class="col-md-2 col-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-home fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ total_stats.total_listings }}</h3>
+                    <small>Tổng tin đăng</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ total_stats.approved_listings }}</h3>
+                    <small>Đã duyệt</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6 mb-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ total_stats.pending_listings }}</h3>
+                    <small>Chờ duyệt</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ total_stats.total_users }}</h3>
+                    <small>Người dùng</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6 mb-3">
+            <div class="card bg-secondary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ total_stats.total_appointments }}</h3>
+                    <small>Lịch hẹn</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6 mb-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-hourglass-half fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ total_stats.pending_appointments }}</h3>
+                    <small>Hẹn chờ xác nhận</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Biểu đồ 1: Tin đăng theo tháng -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar text-primary me-2"></i>
+                        Số tin đăng theo tháng (6 tháng gần nhất)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ 2: Tỷ lệ Bán vs Thuê -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>
+                        Tỷ lệ Bán / Cho thuê
+                    </h5>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="typeChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng thống kê theo danh mục -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-table text-primary me-2"></i>
+                Thống kê theo loại nhà
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Loại nhà</th>
+                            <th class="text-center">Tổng tin</th>
+                            <th class="text-center">Đã duyệt</th>
+                            <th class="text-center">Chờ duyệt</th>
+                            <th class="text-center">Tỷ lệ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in categories_stats %}
+                        <tr>
+                            <td>
+                                <i class="fas fa-home text-primary me-2"></i>
+                                <strong>{{ cat.name }}</strong>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-secondary fs-6">{{ cat.total }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success">{{ cat.approved }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-warning text-dark">{{ cat.pending }}</span>
+                            </td>
+                            <td class="text-center" style="width: 200px;">
+                                {% if cat.total > 0 %}
+                                <div class="progress" style="height: 20px;">
+                                    {% widthratio cat.approved cat.total 100 as approved_percent %}
+                                    <div class="progress-bar bg-success" style="width: {{ approved_percent }}%">
+                                        {{ approved_percent }}%
+                                    </div>
+                                </div>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                Chưa có dữ liệu thống kê
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Biểu đồ cột: Tin đăng theo tháng
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(monthlyCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ months_labels|safe }},
+            datasets: [{
+                label: 'Số tin đăng',
+                data: {{ months_data|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                borderRadius: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Biểu đồ tròn: Tỷ lệ Bán vs Thuê
+    const typeCtx = document.getElementById('typeChart').getContext('2d');
+    new Chart(typeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ type_labels|safe }},
+            datasets: [{
+                data: {{ type_data|safe }},
+                backgroundColor: {{ type_colors|safe }},
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,560 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ article.title }} - Tin tức BĐS{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --pg-black: #2c2c2c;
+        --pg-white: #ffffff;
+        --pg-grey: #dfdddd;
+        --pg-grey-dark: #505050;
+        --pg-grey-darker: #333;
+        --pg-grey-lighter: #f5f5f5;
+        --pg-brand-primary: #d62027;
+    }
+    
+    .article-page-container {
+        margin: 0 auto;
+        padding: 10px 15px;
+        max-width: 1140px;
+    }
+    
+    .title-wrapper {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+    
+    .title-wrapper h1 {
+        font-family: 'Lexend', sans-serif;
+        font-weight: 500;
+        font-size: 40px;
+        line-height: 64px;
+        color: var(--pg-black);
+    }
+    
+    @media (max-width: 992px) {
+        .title-wrapper h1 {
+            font-size: 32px;
+            line-height: 44px;
+        }
+    }
+    
+    .author-info {
+        margin-bottom: 24px;
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .author-image {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 1px solid #c8c9c7;
+        margin-right: 12px;
+        object-fit: cover;
+    }
+    
+    .author-details {
+        flex: 1;
+    }
+    
+    .author-name {
+        font-size: 16px;
+        line-height: 26px;
+    }
+    
+    .author-name span {
+        color: var(--pg-grey-dark);
+    }
+    
+    .author-name a {
+        font-weight: 500;
+        color: var(--pg-black);
+        text-decoration: none;
+    }
+    
+    .post-date {
+        font-size: 14px;
+        color: var(--pg-grey-dark);
+        margin-top: 2px;
+    }
+    
+    /* Content wrapper */
+    .content-wrapper {
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 22px;
+        color: var(--pg-black);
+    }
+    
+    .content-wrapper img {
+        display: block;
+        height: auto;
+        max-width: 100%;
+        margin: 20px auto;
+        border-radius: 8px;
+    }
+    
+    .content-wrapper h2 {
+        font-family: 'Lexend', sans-serif;
+        font-weight: 500;
+        font-size: 28px;
+        line-height: 40px;
+        margin: 30px 0 20px;
+        color: var(--pg-black);
+    }
+    
+    @media (max-width: 992px) {
+        .content-wrapper h2 {
+            font-size: 24px;
+            line-height: 32px;
+        }
+    }
+    
+    .content-wrapper p {
+        font-size: 16px;
+        line-height: 28px;
+        margin-bottom: 20px;
+    }
+    
+    .content-wrapper p strong {
+        font-weight: 500;
+    }
+    
+    .content-wrapper figure {
+        width: 100%;
+        margin: 20px 0;
+    }
+    
+    .content-wrapper figure img {
+        width: 100%;
+        border-radius: 8px;
+    }
+    
+    .content-wrapper figure figcaption {
+        font-size: 14px;
+        line-height: 22px;
+        color: #999;
+        margin-top: 8px;
+        font-style: italic;
+        text-align: center;
+    }
+    
+    .featured-image-container {
+        margin-bottom: 24px;
+    }
+    
+    .featured-image {
+        width: 100%;
+        border-radius: 12px;
+        object-fit: cover;
+        max-height: 500px;
+    }
+    
+    .image-caption {
+        font-size: 14px;
+        color: #999;
+        margin-top: 8px;
+        font-style: italic;
+        text-align: center;
+    }
+    
+    .article-excerpt {
+        font-size: 18px;
+        line-height: 30px;
+        font-weight: 500;
+        color: var(--pg-black);
+        margin-bottom: 24px;
+        padding: 16px 20px;
+        background: var(--pg-grey-lighter);
+        border-left: 4px solid var(--pg-brand-primary);
+        border-radius: 0 8px 8px 0;
+    }
+    
+    /* Share buttons */
+    .share-buttons-wrapper {
+        margin: 30px 0;
+        padding-top: 20px;
+        border-top: 1px solid var(--pg-grey);
+    }
+    
+    .share-buttons-wrapper h5 {
+        font-size: 12px;
+        color: var(--pg-grey-darker);
+        margin-bottom: 10px;
+        font-weight: 400;
+    }
+    
+    .share-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: 1px solid var(--pg-grey-dark);
+        border-radius: 8px;
+        margin-right: 10px;
+        color: var(--pg-grey-dark);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .share-btn:hover {
+        background: var(--pg-grey-dark);
+        color: var(--pg-white);
+    }
+    
+    /* Tags */
+    .tags-wrapper {
+        margin: 20px 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .tag-item {
+        display: inline-block;
+        background: #f2f2f2;
+        border-radius: 16px;
+        padding: 5px 15px;
+        font-size: 14px;
+        color: var(--pg-grey-dark);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .tag-item:hover {
+        background: #ffeceb;
+        color: #74150f;
+    }
+    
+    /* Sidebar */
+    .sticky-section {
+        position: sticky;
+        top: 80px;
+        z-index: 1020;
+    }
+    
+    .popular-articles-wrapper {
+        padding: 15px;
+        background: var(--pg-white);
+        border: 1px solid var(--pg-grey);
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    
+    .popular-articles-wrapper h4 {
+        font-family: 'Lexend', sans-serif;
+        font-weight: 500;
+        font-size: 18px;
+        line-height: 28px;
+        color: var(--pg-black);
+        margin: 0;
+        border-bottom: 1px solid var(--pg-grey);
+        padding-bottom: 15px;
+    }
+    
+    .popular-article-item {
+        display: flex;
+        border-bottom: 1px solid var(--pg-grey);
+        padding: 15px 0;
+    }
+    
+    .popular-article-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .sorted-number {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        background: #ffeceb;
+        border-radius: 50%;
+        margin-right: 10px;
+        font-weight: 500;
+        font-size: 14px;
+        color: #961b12;
+    }
+    
+    .popular-article-item a {
+        font-size: 14px;
+        line-height: 22px;
+        color: var(--pg-black);
+        text-decoration: none;
+    }
+    
+    .popular-article-item a:hover {
+        color: var(--pg-brand-primary);
+    }
+    
+    /* Related articles */
+    .related-articles-section {
+        background: var(--pg-grey-lighter);
+        padding: 40px 0;
+        margin-top: 40px;
+    }
+    
+    .more-articles-title {
+        font-family: 'Lexend', sans-serif;
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 32px;
+        margin-bottom: 20px;
+    }
+    
+    .article-card {
+        display: flex;
+        gap: 12px;
+        padding: 15px 0;
+        border-bottom: 1px solid var(--pg-grey);
+        margin-bottom: 15px;
+    }
+    
+    @media (max-width: 768px) {
+        .article-card {
+            flex-direction: column;
+        }
+    }
+    
+    .article-card-image {
+        width: 260px;
+        min-width: 260px;
+        height: 150px;
+        position: relative;
+    }
+    
+    @media (max-width: 768px) {
+        .article-card-image {
+            width: 100%;
+            min-width: auto;
+            height: 200px;
+        }
+    }
+    
+    .article-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    
+    .card-highlight {
+        position: absolute;
+        top: 10px;
+        left: 0;
+        background: var(--pg-grey-dark);
+        color: #fff;
+        padding: 2px 10px;
+        border-radius: 0 5px 5px 0;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+    
+    .article-card-content {
+        flex: 1;
+    }
+    
+    .article-card-date {
+        font-size: 12px;
+        color: #999;
+        margin-bottom: 5px;
+    }
+    
+    .article-card-content h5 {
+        font-family: 'Lexend', sans-serif;
+        font-weight: 400;
+        font-size: 18px;
+        line-height: 28px;
+        margin: 5px 0 10px;
+    }
+    
+    .article-card-content h5 a {
+        color: var(--pg-black);
+        text-decoration: none;
+    }
+    
+    .article-card-content h5 a:hover {
+        color: var(--pg-brand-primary);
+    }
+    
+    .article-card-excerpt {
+        font-size: 14px;
+        line-height: 22px;
+        color: var(--pg-black);
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+    
+    /* Reading time */
+    .reading-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13px;
+        color: var(--pg-grey-dark);
+    }
+    
+    .reading-time i {
+        font-size: 12px;
+    }
+</style>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<main class="article-page-container container">
+    <div class="row">
+        <div class="col-12">
+            <!-- Title -->
+            <div class="title-wrapper">
+                <h1>{{ article.title }}</h1>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <!-- Author Info -->
+            <div class="author-info">
+                {% if article.author.profile.avatar %}
+                    <img src="{{ article.author.profile.avatar.url }}" alt="{{ article.author.get_full_name|default:article.author.username }}" class="author-image">
+                {% else %}
+                    <img src="https://cdn-assets-angel.batdongsan.com.vn/assets/images/authorDefaultPhoto.png" alt="Author" class="author-image">
+                {% endif %}
+                <div class="author-details">
+                    <div class="author-name">
+                        <span>Được đăng bởi</span> 
+                        <a href="#">{{ article.author.get_full_name|default:article.author.username }}</a>
+                    </div>
+                    <div class="post-date">
+                        Cập nhật lần cuối vào {{ article.updated_at|date:"d/m/Y H:i" }} • 
+                        <span class="reading-time">
+                            <i class="far fa-clock"></i>
+                            Đọc trong khoảng {{ article.get_reading_time }} phút
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8 col-md-12">
+            <article>
+                <!-- Featured Image -->
+                {% if article.featured_image %}
+                <div class="featured-image-container">
+                    <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" class="featured-image">
+                    {% if article.image_caption %}
+                    <p class="image-caption">{{ article.image_caption }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <!-- Excerpt -->
+                <div class="article-excerpt">
+                    {{ article.excerpt }}
+                </div>
+                
+                <!-- Content -->
+                <div class="content-wrapper">
+                    {{ article.content|safe|linebreaks }}
+                </div>
+                
+                <!-- Tags -->
+                {% if tags %}
+                <div class="tags-wrapper">
+                    {% for tag in tags %}
+                    <a href="{% url 'news_tag' tag.slug %}" class="tag-item">{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Share Buttons -->
+                <div class="share-buttons-wrapper">
+                    <h5>Chia sẻ bài viết này</h5>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="share-btn" title="Chia sẻ trên Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ article.title }}" target="_blank" class="share-btn" title="Chia sẻ trên LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ article.title }}" target="_blank" class="share-btn" title="Chia sẻ trên Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <button onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}'); alert('Đã sao chép liên kết!');" class="share-btn" title="Sao chép liên kết">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+            </article>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4 col-md-12">
+            <div class="sticky-section">
+                <!-- Popular Articles -->
+                <div class="popular-articles-wrapper">
+                    <h4>Bài viết được xem nhiều nhất</h4>
+                    {% for pop_article in popular_articles %}
+                    <div class="popular-article-item">
+                        <div class="sorted-number">{{ forloop.counter }}</div>
+                        <a href="{% url 'news_detail' pop_article.slug %}">{{ pop_article.title }}</a>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted mt-3">Chưa có bài viết nào.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Related Articles -->
+{% if related_articles %}
+<section class="related-articles-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12">
+                <h2 class="more-articles-title">Bài viết khác</h2>
+                
+                {% for related in related_articles %}
+                <div class="article-card">
+                    <div class="article-card-image">
+                        <a href="{% url 'news_detail' related.slug %}">
+                            {% if related.category %}
+                            <span class="card-highlight">{{ related.category.name }}</span>
+                            {% endif %}
+                            {% if related.featured_image %}
+                            <img src="{{ related.featured_image.url }}" alt="{{ related.title }}">
+                            {% else %}
+                            <img src="https://via.placeholder.com/260x150?text=No+Image" alt="{{ related.title }}">
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="article-card-content">
+                        <div class="article-card-date">
+                            {{ related.published_at|date:"d/m/Y H:i" }} • {{ related.author.get_full_name|default:related.author.username }}
+                        </div>
+                        <h5><a href="{% url 'news_detail' related.slug %}">{{ related.title }}</a></h5>
+                        <p class="article-card-excerpt">{{ related.excerpt }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

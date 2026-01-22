@@ -1,55 +1,163 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 
-{% block title %}Trang chủ - Mua Bán Nhà{% endblock %}
+{% block title %}Trang chủ - MuaBanNha{% endblock %}
 
 {% block content %}
-
-<section class="bg-primary text-white text-center py-5 mb-4" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://source.unsplash.com/1600x900/?house'); background-size: cover;">
+<!-- Hero Section -->
+<section class="bg-primary text-white py-5 mb-4" 
+         style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1600'); 
+                background-size: cover; background-position: center;">
     <div class="container">
-        <h1 class="display-4 fw-bold">Tìm Ngôi Nhà Mơ Ước</h1>
-        <p class="lead">Hàng nghìn tin đăng bán và cho thuê mới nhất</p>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-4 fw-bold mb-3">Tìm Ngôi Nhà Mơ Ước</h1>
+                <p class="lead mb-4">Hàng nghìn tin đăng bán và cho thuê mới nhất</p>
+                
+                <!-- Quick Search Form -->
+                <form action="{% url 'listing_search' %}" method="GET" class="bg-white rounded p-3 shadow">
+                    <div class="row g-2">
+                        <div class="col-md-5">
+                            <input type="text" name="keyword" class="form-control form-control-lg" 
+                                   placeholder="Nhập địa chỉ, tiêu đề...">
+                        </div>
+                        <div class="col-md-3">
+                            <select name="listing_type" class="form-select form-select-lg">
+                                <option value="">Tất cả hình thức</option>
+                                <option value="sale">Nhà đất bán</option>
+                                <option value="rent">Nhà đất cho thuê</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="category" class="form-select form-select-lg">
+                                <option value="">Loại nhà</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-search"></i> Tìm
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </section>
 
+<!-- Quick Category Links -->
+<div class="container mb-4">
+    <div class="row g-3">
+        <div class="col-6 col-md-3">
+            <a href="{% url 'listing_search' %}?listing_type=sale" class="card text-decoration-none border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-home fa-2x text-danger mb-2"></i>
+                    <h6 class="mb-0">Nhà đất bán</h6>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'listing_search' %}?listing_type=rent" class="card text-decoration-none border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-key fa-2x text-info mb-2"></i>
+                    <h6 class="mb-0">Nhà đất cho thuê</h6>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'listing_search' %}?sort_by=-created_at" class="card text-decoration-none border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                    <h6 class="mb-0">Tin mới nhất</h6>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'listing_search' %}?sort_by=price" class="card text-decoration-none border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
+                    <h6 class="mb-0">Giá tốt nhất</h6>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Latest Listings -->
 <div class="container">
-    <h3 class="mb-3 text-primary border-bottom pb-2">🔥 Tin Mới Nhất</h3>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-primary border-bottom pb-2 mb-0">
+            <i class="fas fa-fire text-danger me-2"></i>Tin Mới Nhất
+        </h3>
+        <a href="{% url 'listing_search' %}" class="btn btn-outline-primary">
+            Xem tất cả <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+    </div>
 
     <div class="row">
         {% for listing in listings %}
         <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm hover-effect">
-                
+            <div class="card h-100 shadow-sm hover-lift">
                 {% if listing.photo %}
-                <img src="{{ listing.photo.url }}" class="card-img-top" alt="{{ listing.title }}" style="height: 220px; object-fit: cover;">
+                <img src="{{ listing.photo.url }}" class="card-img-top" alt="{{ listing.title }}" 
+                     style="height: 220px; object-fit: cover;">
                 {% else %}
-                <img src="https://via.placeholder.com/300" class="card-img-top" style="height: 220px;">
+                <img src="https://via.placeholder.com/400x220?text=No+Image" class="card-img-top" 
+                     style="height: 220px; object-fit: cover;">
                 {% endif %}
 
-                <div class="position-absolute top-0 start-0 bg-danger text-white px-2 py-1 m-2 rounded">
-                    {{ listing.get_listing_type_display }}
+                <div class="position-absolute top-0 start-0 m-2">
+                    <span class="badge bg-{% if listing.listing_type == 'sale' %}danger{% else %}info{% endif %}">
+                        {{ listing.get_listing_type_display }}
+                    </span>
                 </div>
 
                 <div class="card-body">
                     <h5 class="card-title text-truncate">
-                        <a href="{% url 'listing' listing.id %}" class="text-decoration-none text-dark">{{ listing.title }}</a>
+                        <a href="{% url 'listing_detail' listing.id %}" class="text-decoration-none text-dark">
+                            {{ listing.title }}
+                        </a>
                     </h5>
-                    <p class="card-text text-danger fw-bold fs-5">{{ listing.price}} VNĐ</p>
+                    <p class="card-text text-danger fw-bold fs-5 mb-2">{{ listing.get_price_display }}</p>
                     
-                    <ul class="list-unstyled d-flex justify-content-between text-muted small">
-                        <li><i class="fas fa-map-marker-alt"></i> {{ listing.address|truncatechars:20 }}</li>
-                        <li><i class="fas fa-ruler-combined"></i> {{ listing.area }}m²</li>
-                    </ul>
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span><i class="fas fa-map-marker-alt me-1"></i>{{ listing.address|truncatechars:15 }}</span>
+                        <span><i class="fas fa-ruler-combined me-1"></i>{{ listing.area }}m²</span>
+                        <span><i class="fas fa-bed me-1"></i>{{ listing.bedrooms }} PN</span>
+                    </div>
                 </div>
                 <div class="card-footer bg-white border-top-0 d-grid">
-                      <a href="{% url 'listing' listing.id %}" class="btn btn-outline-primary btn-sm">Xem Chi Tiết</a>
+                    <a href="{% url 'listing_detail' listing.id %}" class="btn btn-outline-primary btn-sm">
+                        Xem Chi Tiết
+                    </a>
                 </div>
             </div>
         </div>
         {% empty %}
-            <div class="col-12 text-center">
-                <p>Chưa có tin đăng nào.</p>
-            </div>
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-home fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">Chưa có tin đăng nào</h5>
+            <p class="text-muted">Hãy là người đầu tiên đăng tin!</p>
+            {% if user.is_authenticated and user.profile.is_agent %}
+            <a href="{% url 'listing_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Đăng tin ngay
+            </a>
+            {% endif %}
+        </div>
         {% endfor %}
     </div>
 </div>
+
+<style>
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+}
+</style>
 {% endblock %}

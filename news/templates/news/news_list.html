@@ -1,0 +1,614 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tin tức Bất Động Sản{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --pg-black: #2c2c2c;
+        --pg-white: #ffffff;
+        --pg-grey: #dfdddd;
+        --pg-grey-dark: #505050;
+        --pg-grey-darker: #333;
+        --pg-grey-lighter: #f5f5f5;
+        --pg-brand-primary: #d62027;
+    }
+    
+    .news-page {
+        background: var(--pg-grey-lighter);
+        min-height: 100vh;
+        padding: 30px 0;
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        padding: 50px 0;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.03)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.03)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect fill="url(%23grain)" width="100" height="100"/></svg>');
+        opacity: 0.5;
+    }
+    
+    .page-header h1 {
+        font-family: 'Lexend', sans-serif;
+        font-weight: 600;
+        font-size: 36px;
+        color: #fff;
+        margin-bottom: 10px;
+        position: relative;
+    }
+    
+    .page-header p {
+        color: rgba(255,255,255,0.7);
+        font-size: 16px;
+        position: relative;
+    }
+    
+    .breadcrumb-nav {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 15px;
+        position: relative;
+    }
+    
+    .breadcrumb-nav a {
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+    }
+    
+    .breadcrumb-nav a:hover {
+        color: #fff;
+    }
+    
+    .breadcrumb-nav span {
+        color: rgba(255,255,255,0.5);
+        margin: 0 8px;
+    }
+    
+    .breadcrumb-nav .current {
+        color: #fff;
+    }
+    
+    /* Featured Section */
+    .featured-section {
+        margin-bottom: 40px;
+    }
+    
+    .featured-main {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        height: 400px;
+    }
+    
+    .featured-main img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .featured-main-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 30px;
+        background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    }
+    
+    .featured-main-overlay .category-badge {
+        display: inline-block;
+        background: var(--pg-brand-primary);
+        color: #fff;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 10px;
+    }
+    
+    .featured-main-overlay h2 {
+        font-family: 'Lexend', sans-serif;
+        font-size: 24px;
+        font-weight: 500;
+        color: #fff;
+        margin-bottom: 10px;
+    }
+    
+    .featured-main-overlay h2 a {
+        color: #fff;
+        text-decoration: none;
+    }
+    
+    .featured-main-overlay h2 a:hover {
+        text-decoration: underline;
+    }
+    
+    .featured-main-overlay .meta {
+        color: rgba(255,255,255,0.7);
+        font-size: 13px;
+    }
+    
+    /* Article Cards */
+    .article-card {
+        background: var(--pg-white);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .article-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    
+    .article-card-image {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+    }
+    
+    .article-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .article-card:hover .article-card-image img {
+        transform: scale(1.05);
+    }
+    
+    .article-card-image .category-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: var(--pg-grey-dark);
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+    
+    .article-card-content {
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .article-card-date {
+        font-size: 12px;
+        color: #999;
+        margin-bottom: 8px;
+    }
+    
+    .article-card-title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 1.4;
+        margin-bottom: 10px;
+        flex: 1;
+    }
+    
+    .article-card-title a {
+        color: var(--pg-black);
+        text-decoration: none;
+    }
+    
+    .article-card-title a:hover {
+        color: var(--pg-brand-primary);
+    }
+    
+    .article-card-excerpt {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--pg-grey-dark);
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    
+    /* Sidebar */
+    .sidebar-section {
+        background: var(--pg-white);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    
+    .sidebar-section h4 {
+        font-family: 'Lexend', sans-serif;
+        font-weight: 500;
+        font-size: 18px;
+        color: var(--pg-black);
+        margin-bottom: 15px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--pg-brand-primary);
+    }
+    
+    /* Search Box */
+    .search-box {
+        position: relative;
+    }
+    
+    .search-box input {
+        width: 100%;
+        padding: 12px 45px 12px 15px;
+        border: 1px solid var(--pg-grey);
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+    }
+    
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--pg-brand-primary);
+    }
+    
+    .search-box button {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--pg-brand-primary);
+        border: none;
+        color: #fff;
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    
+    .search-box button:hover {
+        background: #b31a20;
+    }
+    
+    /* Categories List */
+    .category-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .category-list li {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--pg-grey);
+    }
+    
+    .category-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .category-list a {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--pg-black);
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .category-list a:hover {
+        color: var(--pg-brand-primary);
+    }
+    
+    .category-list .count {
+        background: var(--pg-grey-lighter);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        color: var(--pg-grey-dark);
+    }
+    
+    /* Popular Article List */
+    .popular-list .popular-item {
+        display: flex;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--pg-grey);
+    }
+    
+    .popular-list .popular-item:last-child {
+        border-bottom: none;
+    }
+    
+    .popular-item-number {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        background: #ffeceb;
+        border-radius: 50%;
+        margin-right: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #961b12;
+    }
+    
+    .popular-item a {
+        font-size: 14px;
+        line-height: 1.4;
+        color: var(--pg-black);
+        text-decoration: none;
+    }
+    
+    .popular-item a:hover {
+        color: var(--pg-brand-primary);
+    }
+    
+    /* Pagination */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+    }
+    
+    .pagination .page-link {
+        color: var(--pg-black);
+        border: 1px solid var(--pg-grey);
+        padding: 10px 16px;
+        margin: 0 4px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination .page-link:hover {
+        background: var(--pg-brand-primary);
+        border-color: var(--pg-brand-primary);
+        color: #fff;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: var(--pg-brand-primary);
+        border-color: var(--pg-brand-primary);
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .empty-state i {
+        font-size: 64px;
+        color: var(--pg-grey);
+        margin-bottom: 20px;
+    }
+    
+    .empty-state h3 {
+        color: var(--pg-grey-dark);
+        margin-bottom: 10px;
+    }
+    
+    .empty-state p {
+        color: #999;
+    }
+</style>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <nav class="breadcrumb-nav">
+            <a href="{% url 'home' %}">Trang chủ</a>
+            <span>/</span>
+            <span class="current">Tin tức</span>
+        </nav>
+        <h1><i class="far fa-newspaper me-2"></i>Tin Tức Bất Động Sản</h1>
+        <p>Cập nhật thông tin mới nhất về thị trường, pháp lý và xu hướng đầu tư BĐS</p>
+    </div>
+</div>
+
+<div class="news-page">
+    <div class="container">
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Search Bar (Mobile) -->
+                <div class="d-lg-none mb-4">
+                    <form method="get" class="search-box">
+                        <input type="text" name="q" placeholder="Tìm kiếm bài viết..." value="{{ search_query|default:'' }}">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                
+                <!-- Featured Article -->
+                {% if featured_articles and not search_query and not current_category and not current_tag %}
+                <div class="featured-section">
+                    {% with featured_articles.0 as main_featured %}
+                    {% if main_featured %}
+                    <div class="featured-main">
+                        {% if main_featured.featured_image %}
+                        <img src="{{ main_featured.featured_image.url }}" alt="{{ main_featured.title }}">
+                        {% else %}
+                        <img src="https://via.placeholder.com/800x400?text=Featured+Article" alt="{{ main_featured.title }}">
+                        {% endif %}
+                        <div class="featured-main-overlay">
+                            {% if main_featured.category %}
+                            <span class="category-badge">{{ main_featured.category.name }}</span>
+                            {% endif %}
+                            <h2><a href="{% url 'news_detail' main_featured.slug %}">{{ main_featured.title }}</a></h2>
+                            <div class="meta">
+                                <i class="far fa-calendar me-1"></i> {{ main_featured.published_at|date:"d/m/Y" }}
+                                <span class="mx-2">•</span>
+                                <i class="far fa-eye me-1"></i> {{ main_featured.views_count }} lượt xem
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+                {% endif %}
+                
+                <!-- Search Results Info -->
+                {% if search_query %}
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-search me-2"></i>
+                    Kết quả tìm kiếm cho: <strong>"{{ search_query }}"</strong>
+                    <a href="{% url 'news_list' %}" class="float-end text-decoration-none">
+                        <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                    </a>
+                </div>
+                {% endif %}
+                
+                {% if current_category %}
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-folder me-2"></i>
+                    Danh mục: <strong>{{ current_category }}</strong>
+                    <a href="{% url 'news_list' %}" class="float-end text-decoration-none">
+                        <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                    </a>
+                </div>
+                {% endif %}
+                
+                <!-- Articles Grid -->
+                <div class="row g-4">
+                    {% for article in page_obj %}
+                    <div class="col-md-6">
+                        <div class="article-card">
+                            <div class="article-card-image">
+                                <a href="{% url 'news_detail' article.slug %}">
+                                    {% if article.category %}
+                                    <span class="category-badge">{{ article.category.name }}</span>
+                                    {% endif %}
+                                    {% if article.featured_image %}
+                                    <img src="{{ article.featured_image.url }}" alt="{{ article.title }}">
+                                    {% else %}
+                                    <img src="https://via.placeholder.com/400x200?text=No+Image" alt="{{ article.title }}">
+                                    {% endif %}
+                                </a>
+                            </div>
+                            <div class="article-card-content">
+                                <div class="article-card-date">
+                                    <i class="far fa-calendar me-1"></i> {{ article.published_at|date:"d/m/Y H:i" }}
+                                    <span class="mx-2">•</span>
+                                    {{ article.author.get_full_name|default:article.author.username }}
+                                </div>
+                                <h5 class="article-card-title">
+                                    <a href="{% url 'news_detail' article.slug %}">{{ article.title }}</a>
+                                </h5>
+                                <p class="article-card-excerpt">{{ article.excerpt }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="far fa-newspaper"></i>
+                            <h3>Chưa có bài viết nào</h3>
+                            <p>Hãy quay lại sau để xem tin tức mới nhất!</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                <div class="pagination-wrapper">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}">{{ num }}</a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Search Box -->
+                <div class="sidebar-section d-none d-lg-block">
+                    <h4><i class="fas fa-search me-2"></i>Tìm kiếm</h4>
+                    <form method="get" class="search-box">
+                        <input type="text" name="q" placeholder="Tìm kiếm bài viết..." value="{{ search_query|default:'' }}">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                
+                <!-- Categories -->
+                {% if categories %}
+                <div class="sidebar-section">
+                    <h4><i class="fas fa-folder me-2"></i>Danh mục</h4>
+                    <ul class="category-list">
+                        {% for cat in categories %}
+                        <li>
+                            <a href="{% url 'news_category' cat.slug %}">
+                                {{ cat.name }}
+                                <span class="count">{{ cat.articles.count }}</span>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <!-- Popular Articles -->
+                {% if popular_articles %}
+                <div class="sidebar-section">
+                    <h4><i class="fas fa-fire me-2"></i>Xem nhiều nhất</h4>
+                    <div class="popular-list">
+                        {% for article in popular_articles %}
+                        <div class="popular-item">
+                            <div class="popular-item-number">{{ forloop.counter }}</div>
+                            <a href="{% url 'news_detail' article.slug %}">{{ article.title }}</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

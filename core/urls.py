@@ -15,17 +15,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from django.conf import settings               # <--- Cần dòng này
-from django.conf.urls.static import static     # <--- Cần dòng này
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
-from listings import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name='home'),
-    # <--- THÊM DÒNG NÀY: Dấu <int:listing_id> nghĩa là ID thay đổi động
-    path('listing/<int:listing_id>/', views.listing, name='listing'),
+    
+    # Listings URLs
+    path('', include('listings.urls')),
+    
+    # Accounts URLs
+    path('accounts/', include('accounts.urls')),
+    
+    # News URLs
+    path('tin-tuc/', include('news.urls')),
 ]
 # --- ĐOẠN QUAN TRỌNG ĐỂ HIỆN ẢNH ---
 if settings.DEBUG:

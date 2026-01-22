@@ -10,9 +10,34 @@
     
     <style>
         /* CSS tuỳ chỉnh một chút cho đẹp */
-        body { background-color: #f8f9fa; }
+        html, body { height: 100%; }
+        body { 
+            background-color: #f8f9fa; 
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
         .navbar-brand { font-weight: bold; color: #ff6b6b !important; }
-        .footer { background: #2c3e50; color: white; padding: 20px 0; }
+        
+        /* Main content chiếm hết không gian còn lại */
+        main { flex: 1 0 auto; }
+        
+        /* Footer luôn ở dưới cùng */
+        .footer { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 20px 0;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+        
+        /* Fix z-index cho navbar */
+        .navbar.sticky-top { z-index: 1030; }
+        
+        /* Fix z-index cho các element sticky trong content */
+        .content-sticky { 
+            z-index: 1020 !important; 
+        }
     </style>
 </head>
 <body>
@@ -27,21 +52,112 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Trang chủ</a>
+                        <a class="nav-link" href="{% url 'home' %}">Trang chủ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/search/?type=sale">Nhà đất bán</a>
+                        <a class="nav-link" href="{% url 'listing_search' %}?listing_type=sale">Nhà đất bán</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/search/?type=rent">Nhà đất cho thuê</a>
+                        <a class="nav-link" href="{% url 'listing_search' %}?listing_type=rent">Nhà đất cho thuê</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Tin tức</a>
+                        <a class="nav-link" href="{% url 'news_list' %}">
+                            <i class="far fa-newspaper me-1"></i>Tin tức
+                        </a>
                     </li>
                     
-                    <li class="nav-item ms-2">
-                        <a class="btn btn-outline-light btn-sm mt-1" href="/admin">Đăng nhập</a>
-                    </li>
+                    {% if user.is_authenticated %}
+                        <!-- Menu cho người đã đăng nhập -->
+                        {% if user.profile.is_agent %}
+                        <li class="nav-item">
+                            <a class="nav-link text-warning" href="{% url 'listing_create' %}">
+                                <i class="fas fa-plus-circle"></i> Đăng tin
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <li class="nav-item dropdown ms-2">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" 
+                               id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" 
+                                         class="rounded-circle me-2" 
+                                         style="width: 28px; height: 28px; object-fit: cover;">
+                                {% else %}
+                                    <i class="fas fa-user-circle me-1"></i>
+                                {% endif %}
+                                {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'profile' %}">
+                                        <i class="fas fa-user me-2"></i>Hồ sơ cá nhân
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'my_appointments' %}">
+                                        <i class="fas fa-calendar-check me-2"></i>Lịch hẹn của tôi
+                                    </a>
+                                </li>
+                                {% if user.profile.is_agent %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-header">Quản lý tin</li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'my_listings' %}">
+                                        <i class="fas fa-list me-2"></i>Tin đã đăng
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'agent_appointments' %}">
+                                        <i class="fas fa-calendar-alt me-2"></i>Lịch hẹn khách
+                                    </a>
+                                </li>
+                                {% endif %}
+                                {% if user.is_staff %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-header">Quản trị</li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'admin_pending_listings' %}">
+                                        <i class="fas fa-clipboard-check me-2"></i>Duyệt tin
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'statistics' %}">
+                                        <i class="fas fa-chart-bar me-2"></i>Thống kê
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'admin:news_article_changelist' %}">
+                                        <i class="far fa-newspaper me-2"></i>Quản lý tin tức
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'admin:index' %}">
+                                        <i class="fas fa-cog me-2"></i>Django Admin
+                                    </a>
+                                </li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <!-- Menu cho khách -->
+                        <li class="nav-item ms-2">
+                            <a class="btn btn-outline-light btn-sm" href="{% url 'login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
+                            </a>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <a class="btn btn-warning btn-sm" href="{% url 'register' %}">
+                                <i class="fas fa-user-plus me-1"></i>Đăng ký
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -52,7 +168,7 @@
         {% endblock %}
     </main>
 
-    <footer class="footer mt-5 text-center">
+    <footer class="footer text-center">
         <div class="container">
             <p class="mb-0">© 2024 Dự án Bất Động Sản Demo. All rights reserved.</p>
             <small>Designed by You</small>

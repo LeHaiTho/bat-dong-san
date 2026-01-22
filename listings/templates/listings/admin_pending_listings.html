@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Duyệt tin đăng - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">
+            <i class="fas fa-clipboard-check text-primary me-2"></i>Duyệt tin đăng
+        </h3>
+        <div>
+            <span class="badge bg-warning text-dark fs-6 me-2">
+                <i class="fas fa-clock"></i> Chờ duyệt: {{ status_counts.pending }}
+            </span>
+            <span class="badge bg-success fs-6 me-2">
+                <i class="fas fa-check"></i> Đã duyệt: {{ status_counts.approved }}
+            </span>
+            <span class="badge bg-danger fs-6">
+                <i class="fas fa-times"></i> Từ chối: {{ status_counts.rejected }}
+            </span>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if page_obj %}
+    <div class="row">
+        {% for listing in page_obj %}
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Ảnh -->
+                        <div class="col-md-3">
+                            {% if listing.photo %}
+                            <img src="{{ listing.photo.url }}" class="img-fluid rounded" 
+                                 style="height: 180px; width: 100%; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                 style="height: 180px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Thông tin -->
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-{% if listing.listing_type == 'sale' %}danger{% else %}info{% endif %} me-2">
+                                    {{ listing.get_listing_type_display }}
+                                </span>
+                                <span class="badge bg-secondary">{{ listing.category.name }}</span>
+                            </div>
+                            
+                            <h5 class="mb-2">{{ listing.title }}</h5>
+                            <p class="text-danger fw-bold fs-5 mb-2">{{ listing.get_price_display }}</p>
+                            
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ listing.address }}
+                            </p>
+                            
+                            <div class="d-flex gap-3 text-muted small mb-2">
+                                <span><i class="fas fa-ruler-combined me-1"></i>{{ listing.area }}m²</span>
+                                <span><i class="fas fa-bed me-1"></i>{{ listing.bedrooms }} PN</span>
+                                <span><i class="fas fa-bath me-1"></i>{{ listing.bathrooms }} WC</span>
+                            </div>
+                            
+                            {% if listing.description %}
+                            <p class="small text-muted mb-0">{{ listing.description|truncatechars:150 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Thông tin người đăng & Actions -->
+                        <div class="col-md-3">
+                            <div class="bg-light rounded p-3 mb-3">
+                                <h6 class="mb-2"><i class="fas fa-user me-1"></i>Người đăng</h6>
+                                <p class="mb-1 fw-bold">{{ listing.owner.get_full_name|default:listing.owner.username }}</p>
+                                {% if listing.owner.profile.phone %}
+                                <p class="mb-1 small">
+                                    <i class="fas fa-phone text-success me-1"></i>{{ listing.owner.profile.phone }}
+                                </p>
+                                {% endif %}
+                                <p class="mb-0 small text-muted">
+                                    <i class="fas fa-clock me-1"></i>{{ listing.created_at|date:"d/m/Y H:i" }}
+                                </p>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'listing_detail' listing.id %}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                    <i class="fas fa-eye me-1"></i>Xem chi tiết
+                                </a>
+                                <form method="POST" action="{% url 'admin_approve_listing' listing.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-sm w-100">
+                                        <i class="fas fa-check me-1"></i>Duyệt tin
+                                    </button>
+                                </form>
+                                <form method="POST" action="{% url 'admin_reject_listing' listing.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm w-100"
+                                            onclick="return confirm('Bạn có chắc muốn từ chối tin này?')">
+                                        <i class="fas fa-times me-1"></i>Từ chối
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-clipboard-check fa-4x text-success mb-3"></i>
+        <h5 class="text-muted">Không có tin nào cần duyệt</h5>
+        <p class="text-muted">Tất cả tin đăng đã được xử lý.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
